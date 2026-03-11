@@ -57,13 +57,13 @@ Two complementary approaches:
 
 ## What I Would Improve for Production
 
-1. **Parallel extraction**: Process multiple invoices concurrently in the `extract` node (currently sequential).
-2. **Retry logic**: Add retry with exponential backoff for LLM failures, with circuit breaker.
-3. **Persistent state**: Use LangGraph checkpointing (Redis/Postgres) for run recovery after crashes.
-4. **Authentication**: Add API key auth or OAuth2 to the FastAPI endpoints.
-5. **Rate limiting**: Protect against abuse and OpenAI rate limits.
-6. **Batch processing**: Support very large invoice folders with pagination and progress tracking.
-7. **Confidence thresholds**: Auto-flag low-confidence extractions for human review.
-8. **Caching**: Cache LLM responses for identical images to reduce cost.
-9. **Structured output**: Use OpenAI's structured output mode (function calling) instead of JSON mode for more reliable extraction.
+1. **Graph-level retry**: The LLM client retries individual API calls, but graph-level retry (re-running a failed node with backoff and circuit breaker) would improve resilience for transient failures mid-pipeline.
+2. **Persistent state**: Use LangGraph checkpointing (Redis/Postgres) for run recovery after crashes.
+3. **Authentication**: Add API key auth or OAuth2 to the FastAPI endpoints.
+4. **Rate limiting**: Protect against abuse and OpenAI rate limits.
+5. **Batch processing**: Support very large invoice folders with pagination and progress tracking.
+6. **Confidence thresholds**: Auto-flag low-confidence extractions for human review queue.
+7. **Caching**: Cache LLM responses for identical images (content-hash keyed) to reduce cost.
+8. **Structured output**: Use OpenAI's structured output mode (function calling) instead of JSON mode for more reliable extraction.
+9. **Missing field detection**: Detect and flag missing invoice numbers during normalization for reviewer attention.
 10. **Monitoring**: Add Prometheus metrics for latency, error rates, and LLM token usage.

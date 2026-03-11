@@ -176,9 +176,8 @@ async def _stream_run(
             "report": "Generating final report",
         }
 
-        prev_categorized_count = 0
-
         prev_step = "start"
+        running_state = dict(initial_state)
         async for event in compiled.astream(initial_state, stream_mode="updates"):
             for node_name, node_output in event.items():
                 if node_name == "planner":
@@ -196,7 +195,7 @@ async def _stream_run(
                 span = tracer.start_span(node_name, {"step": step_label})
 
                 # tool_call event
-                inputs_summary = _summarize_inputs(node_name, initial_state)
+                inputs_summary = _summarize_inputs(node_name, running_state)
                 yield format_sse(tool_call_event(run_id, node_name, inputs_summary))
 
                 # progress event
@@ -207,6 +206,7 @@ async def _stream_run(
                 yield format_sse(tool_result_event(run_id, node_name, outputs_summary))
 
                 tracer.end_span(span, outputs_summary)
+                running_state.update(node_output)
 
                 # Emit invoice_result events for each newly categorized invoice
                 new_categorized = node_output.get("categorized_invoices", [])
