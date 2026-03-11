@@ -37,6 +37,7 @@ async def normalize_invoice(
         line_items=raw.line_items,
         image_ref=image_ref,
         issues=issues,
+        flags=raw.flags,
     )
 
 

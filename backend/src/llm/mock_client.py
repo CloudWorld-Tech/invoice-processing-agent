@@ -84,7 +84,9 @@ class MockLLMClient(BaseLLMClient):
         if self.fail_on_extract:
             raise RuntimeError("Mock LLM extraction failure (simulated)")
         idx = self._index_for_path(image_path)
-        return _MOCK_EXTRACTIONS[idx].copy()
+        data = _MOCK_EXTRACTIONS[idx].copy()
+        data["flags"] = [f"[prompt] {prompt}"] if prompt else []
+        return data
 
     async def categorize_invoice(
         self,
@@ -110,4 +112,6 @@ class MockLLMClient(BaseLLMClient):
             if key in vendor_lower:
                 idx = i
                 break
-        return _MOCK_CATEGORIES[idx].copy()
+        data = _MOCK_CATEGORIES[idx].copy()
+        data["flags"] = [f"[prompt] {prompt}"] if prompt else []
+        return data

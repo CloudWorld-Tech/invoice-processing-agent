@@ -1,4 +1,4 @@
-import { DollarSign, FileText, PieChart, AlertTriangle } from "lucide-react";
+import { DollarSign, FileText, PieChart, AlertTriangle, Flag } from "lucide-react";
 import { memo } from "react";
 import type { FinalResult } from "../types";
 import { formatCurrency } from "../utils/formatters";
@@ -15,6 +15,7 @@ const CATEGORY_COLORS = [
 export const SummaryPanel = memo(function SummaryPanel({ result }: Props) {
   const categories = result.spend_by_category ?? [];
   const notes = result.issues_and_assumptions ?? [];
+  const flags = result.flags ?? [];
   const maxSpend = categories.length > 0
     ? Math.max(...categories.map((c) => c.total))
     : 1;
@@ -62,6 +63,17 @@ export const SummaryPanel = memo(function SummaryPanel({ result }: Props) {
             </div>
           </div>
         )}
+        {flags.length > 0 && (
+          <div className="summary-card" role="listitem">
+            <div className="card-icon" style={{ backgroundColor: "#ef444420", color: "#ef4444" }}>
+              <Flag size={20} aria-hidden="true" />
+            </div>
+            <div className="card-content">
+              <span className="card-value">{flags.length}</span>
+              <span className="card-label">Flags</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {categories.length > 0 && (
@@ -99,6 +111,17 @@ export const SummaryPanel = memo(function SummaryPanel({ result }: Props) {
           <ul aria-label="Issues and assumptions list">
             {notes.map((note, i) => (
               <li key={i}>{note}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {flags.length > 0 && (
+        <div className="flags-section">
+          <h3>Flags</h3>
+          <ul aria-label="Flags list">
+            {flags.map((flag, i) => (
+              <li key={i}>{flag}</li>
             ))}
           </ul>
         </div>

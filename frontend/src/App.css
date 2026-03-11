@@ -739,6 +739,35 @@
   background: rgba(139, 92, 246, 0.05);
 }
 
+/* Flags */
+.flags-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.flags-section li {
+  padding: 6px 12px;
+  margin-bottom: 4px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  border-left: 3px solid var(--danger, #ef4444);
+  background: rgba(239, 68, 68, 0.05);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.flag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 999px;
+  cursor: default;
+}
+
 /* ===== Empty State ===== */
 .empty-state {
   display: flex;

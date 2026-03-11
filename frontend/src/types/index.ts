@@ -57,6 +57,7 @@ export interface InvoiceResult {
   confidence: number;
   line_items: string[];
   issues: string[];
+  flags: string[];
 }
 
 export interface CategorySpend {
@@ -71,6 +72,7 @@ export interface FinalResult {
   spend_by_category: CategorySpend[];
   invoices: InvoiceResult[];
   issues_and_assumptions: string[];
+  flags: string[];
 }
 
 export interface ProgressStep {

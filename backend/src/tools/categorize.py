@@ -38,6 +38,9 @@ async def categorize_invoice(
     if confidence < 0.7:
         issues.append(f"Low categorization confidence: {confidence:.2f}")
 
+    # Merge extraction flags (from earlier pipeline stages) with categorization flags
+    flags = list(invoice.flags) + result.get("flags", [])
+
     return CategorizedInvoice(
         vendor=invoice.vendor,
         invoice_date=invoice.invoice_date,
@@ -49,6 +52,7 @@ async def categorize_invoice(
         line_items=invoice.line_items,
         image_ref=invoice.image_ref,
         issues=issues,
+        flags=flags,
     )
 
 

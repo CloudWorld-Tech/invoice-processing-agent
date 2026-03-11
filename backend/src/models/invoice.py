@@ -31,6 +31,7 @@ class RawInvoiceFields(BaseModel):
     line_items: list[str] = Field(default_factory=list)
     raw_text: Optional[str] = None
     confidence: float = 0.0
+    flags: list[str] = Field(default_factory=list)
 
 
 class NormalizedInvoice(BaseModel):
@@ -41,6 +42,7 @@ class NormalizedInvoice(BaseModel):
     line_items: list[str] = Field(default_factory=list)
     image_ref: ImageRef
     issues: list[str] = Field(default_factory=list)
+    flags: list[str] = Field(default_factory=list)
 
 
 class CategorizedInvoice(BaseModel):
@@ -54,6 +56,7 @@ class CategorizedInvoice(BaseModel):
     line_items: list[str] = Field(default_factory=list)
     image_ref: ImageRef
     issues: list[str] = Field(default_factory=list)
+    flags: list[str] = Field(default_factory=list)
 
 
 class CategorySpend(BaseModel):
@@ -74,3 +77,4 @@ class FinalResult(BaseModel):
     invoices: list[CategorizedInvoice]
     issues_and_assumptions: list[str]
     invoice_count: int
+    flags: list[str] = Field(default_factory=list)

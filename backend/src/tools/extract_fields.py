@@ -25,6 +25,7 @@ async def extract_invoice_fields(
         line_items=result.get("line_items", []),
         raw_text=result.get("raw_text"),
         confidence=float(result.get("confidence", 0.0)),
+        flags=result.get("flags", []),
     )
 
 

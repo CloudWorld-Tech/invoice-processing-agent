@@ -89,6 +89,8 @@ class OpenAIClient(BaseLLMClient):
                     data[field] = "Unknown"
                 elif field == "category":
                     data[field] = "Other"
+                elif field == "flags":
+                    data[field] = []
                 else:
                     data[field] = None
         return data
@@ -104,10 +106,16 @@ class OpenAIClient(BaseLLMClient):
             "Return ONLY valid JSON with these fields: "
             "vendor, invoice_date (YYYY-MM-DD), invoice_number (or null), "
             "total (numeric), line_items (array of strings), "
-            "raw_text (brief summary), confidence (0-1 float)."
+            "raw_text (brief summary), confidence (0-1 float), "
+            "flags (array of strings — observations based on user instructions; "
+            "empty array if no user instructions or nothing to flag)."
         )
         if prompt:
-            system_prompt += f"\n\nAdditional instructions: {prompt}"
+            system_prompt += (
+                f"\n\nUser instructions: {prompt}\n"
+                "Apply these instructions when extracting fields. "
+                "Add any relevant observations to the 'flags' array."
+            )
 
         async def _do_call():
             return await self.client.chat.completions.create(
@@ -142,6 +150,9 @@ class OpenAIClient(BaseLLMClient):
             logger.error("LLM returned invalid JSON for extraction: %s", e)
             data = {}
 
+        data.setdefault("flags", [])
+        if not isinstance(data["flags"], list):
+            data["flags"] = []
         return self._validate_response(data, _EXTRACT_REQUIRED_FIELDS, "extraction")
 
     async def categorize_invoice(
@@ -157,11 +168,17 @@ class OpenAIClient(BaseLLMClient):
             "You are an expense categorization specialist. "
             "Categorize the invoice into exactly ONE of the allowed categories. "
             "Return ONLY valid JSON with: category (exact string from list), "
-            "confidence (0-1 float), notes (brief explanation).\n\n"
+            "confidence (0-1 float), notes (brief explanation), "
+            "flags (array of strings — observations based on user instructions; "
+            "empty array if no user instructions or nothing to flag).\n\n"
             f"Allowed categories:\n{categories_str}"
         )
         if prompt:
-            system_prompt += f"\n\nAdditional instructions: {prompt}"
+            system_prompt += (
+                f"\n\nUser instructions: {prompt}\n"
+                "Apply these instructions when categorizing. "
+                "Add any relevant observations to the 'flags' array."
+            )
 
         user_content = (
             f"Vendor: {vendor}\n"
@@ -190,4 +207,7 @@ class OpenAIClient(BaseLLMClient):
             logger.error("LLM returned invalid JSON for categorization: %s", e)
             data = {}
 
+        data.setdefault("flags", [])
+        if not isinstance(data["flags"], list):
+            data["flags"] = []
         return self._validate_response(data, _CATEGORIZE_REQUIRED_FIELDS, "categorization")

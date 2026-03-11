@@ -1,4 +1,4 @@
-import { ArrowUpDown, Download } from "lucide-react";
+import { ArrowUpDown, Download, Flag } from "lucide-react";
 import { memo, useCallback, useMemo, useState } from "react";
 import type { InvoiceResult, SortDirection, SortField } from "../types";
 import { confidenceColor, confidenceLabel, formatCurrency } from "../utils/formatters";
@@ -137,6 +137,7 @@ export const InvoiceTable = memo(function InvoiceTable({ invoices }: Props) {
                   Confidence{sortIndicator("confidence")} <ArrowUpDown size={12} />
                 </button>
               </th>
+              <th className="text-center">Flags</th>
             </tr>
           </thead>
           <tbody>
@@ -158,6 +159,15 @@ export const InvoiceTable = memo(function InvoiceTable({ invoices }: Props) {
                   <span aria-label={`${confidenceLabel(inv.confidence)} confidence: ${(inv.confidence * 100).toFixed(0)}%`}>
                     {(inv.confidence * 100).toFixed(0)}%
                   </span>
+                </td>
+                <td className="text-center" data-label="Flags">
+                  {inv.flags && inv.flags.length > 0 ? (
+                    <span className="flag-badge" title={inv.flags.join("\n")}>
+                      <Flag size={12} /> {inv.flags.length}
+                    </span>
+                  ) : (
+                    "\u2014"
+                  )}
                 </td>
               </tr>
             ))}
