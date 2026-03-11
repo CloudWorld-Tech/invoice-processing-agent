@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+build/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# uv
+.python-version
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# mypy / type checking
+.mypy_cache/
+.dmypy.json
+
+# Traces (keep sample, ignore run output)
+backend/traces/*.jsonl
+backend/traces/*.json
+!backend/traces/sample_trace.json
+
+# Node / Frontend
+node_modules/
+dist/
+frontend/dist/
+*.tsbuildinfo
+
+# Vite
+*.local
+
+# ESLint
+.eslintcache
+
+# npm / yarn / pnpm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+.claude

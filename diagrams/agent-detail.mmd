@@ -1,0 +1,81 @@
+flowchart TD
+    Start((Start)) --> Planner
+
+    Planner["Planner Node\n─────────────\nReads current_step from state\nRoutes via conditional edges"]
+
+    Planner -- "current_step = load_images" --> LoadImages
+    Planner -- "current_step = extract" --> Extract
+    Planner -- "current_step = normalize" --> Normalize
+    Planner -- "current_step = categorize" --> Categorize
+    Planner -- "current_step = aggregate" --> Aggregate
+    Planner -- "current_step = report" --> Report
+    Planner -- "current_step = done" --> End((End))
+
+    subgraph ToolNodes["Tool Nodes (6 tools)"]
+        LoadImages["load_images\n─────────────\nReads PNGs from folder\nor uploaded files\n=> list of ImageRef\n\nPure Python"]
+
+        Extract["extract\n─────────────\nSends each image to\nVision LLM GPT-4o\n=> RawInvoiceFields\n\nUses LLM"]
+
+        Normalize["normalize\n─────────────\nCleans dates, amounts\nvalidates fields\n=> NormalizedInvoice\n\nPure Python"]
+
+        Categorize["categorize\n─────────────\nLLM classifies each\ninvoice by spend type\n=> CategorizedInvoice\n\nUses LLM"]
+
+        Aggregate["aggregate\n─────────────\nSums totals, groups\nby category\n=> AggregationResult\n\nPure Python"]
+
+        Report["report\n─────────────\nBuilds final summary\nwith issues list\n=> FinalResult\n\nPure Python"]
+    end
+
+    LoadImages --> Planner
+    Extract --> Planner
+    Normalize --> Planner
+    Categorize --> Planner
+    Aggregate --> Planner
+    Report --> Planner
+
+    subgraph StateStore["AgentState (TypedDict with Reducers)"]
+        direction LR
+        S1["image_refs: list ImageRef"]
+        S2["raw_extractions: list RawInvoiceFields"]
+        S3["normalized_invoices: list NormalizedInvoice"]
+        S4["categorized_invoices: list CategorizedInvoice"]
+        S5["aggregation: AggregationResult"]
+        S6["final_result: FinalResult"]
+        S7["current_step: str"]
+        S8["steps_completed: list str"]
+        S9["issues: list str"]
+    end
+
+    ToolNodes -. "reads & writes" .-> StateStore
+
+    subgraph SSE["SSE Events Emitted Per Node"]
+        direction LR
+        E1["tool_call: node started"]
+        E2["progress: step description"]
+        E3["tool_result: output summary"]
+        E4["invoice_result: per-invoice data\n(after categorize)"]
+        E5["final_result: complete summary\n(after report)"]
+    end
+
+    ToolNodes -. "emits" .-> SSE
+
+    subgraph Tracing["Tracing (per node execution)"]
+        direction LR
+        T1["planner_decision span\nfrom => routed_to"]
+        T2["tool span\ninputs / outputs / duration_ms"]
+    end
+
+    ToolNodes -. "traced" .-> Tracing
+
+    style Planner fill:#e94560,stroke:#e94560,color:#fff
+    style ToolNodes fill:#0f3460,stroke:#4a9eff,color:#fff
+    style StateStore fill:#1a1a2e,stroke:#53d769,color:#fff
+    style SSE fill:#16213e,stroke:#f5a623,color:#fff
+    style Tracing fill:#1a1a2e,stroke:#53d769,color:#fff
+    style Start fill:#53d769,stroke:#53d769,color:#fff
+    style End fill:#e94560,stroke:#e94560,color:#fff
+    style LoadImages fill:#16213e,stroke:#4a9eff,color:#fff
+    style Extract fill:#16213e,stroke:#f5a623,color:#fff
+    style Normalize fill:#16213e,stroke:#4a9eff,color:#fff
+    style Categorize fill:#16213e,stroke:#f5a623,color:#fff
+    style Aggregate fill:#16213e,stroke:#4a9eff,color:#fff
+    style Report fill:#16213e,stroke:#4a9eff,color:#fff

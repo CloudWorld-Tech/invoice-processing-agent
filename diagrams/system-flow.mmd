@@ -1,0 +1,54 @@
+flowchart TB
+    subgraph Frontend["React Dashboard (port 3000)"]
+        UI[User Interface]
+        SSEHook[useInvoiceRun Hook]
+        Components[Components: Header / InputPanel / PipelineProgress\nInvoiceTable / SummaryPanel / EventLog]
+    end
+
+    subgraph Backend["FastAPI Backend (port 8000)"]
+        API["POST /runs/stream"]
+        Health["GET /health"]
+        SSEEmitter[SSE Event Emitter]
+    end
+
+    subgraph Agent["LangGraph Agent"]
+        Planner[Planner Node]
+        Tools[Tool Nodes]
+        State[AgentState TypedDict]
+    end
+
+    subgraph Observability[Tracing & Observability]
+        RunTracer[RunTracer → JSON files]
+        LangSmith[LangSmith Cloud]
+    end
+
+    subgraph LLM["LLM Client Layer"]
+        Factory{LLMFactory}
+        OpenAI[OpenAI / Azure OpenAI\nGPT-4o Vision]
+        Mock[MockLLMClient\nDeterministic Fixtures]
+    end
+
+    UI -- "folder path / file upload\n+ optional prompt" --> SSEHook
+    SSEHook -- "POST multipart/json" --> API
+    API -- "SSE event stream" --> SSEHook
+    SSEHook -- "parsed events" --> Components
+
+    API --> Agent
+    Agent -- "node updates via astream" --> SSEEmitter
+    SSEEmitter -- "run_started / progress / tool_call\ntool_result / invoice_result / final_result" --> API
+
+    Planner -- "conditional edges" --> Tools
+    Tools -- "state updates" --> State
+    State -- "current_step" --> Planner
+    Tools --> Factory
+    Factory -- "MOCK_MODE=true" --> Mock
+    Factory -- "MOCK_MODE=false" --> OpenAI
+
+    Agent --> RunTracer
+    Agent -.-> LangSmith
+
+    style Frontend fill:#1a1a2e,stroke:#4a9eff,color:#fff
+    style Backend fill:#16213e,stroke:#4a9eff,color:#fff
+    style Agent fill:#0f3460,stroke:#e94560,color:#fff
+    style Observability fill:#1a1a2e,stroke:#53d769,color:#fff
+    style LLM fill:#16213e,stroke:#f5a623,color:#fff
